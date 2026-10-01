@@ -1,0 +1,22 @@
+{
+  "input_ms": "/path/to/calibrated_target.ms",
+  "work_ms": "/path/to/work/target_selfcal.ms",
+  "field": "Eyelash",
+  "line_free_spw": "*:248.88~250.22GHz,*:251.89~253.37GHz",
+  "reference_antenna": "DA59",
+  "solution_spw": 0,
+  "mask": "/path/to/source_mask.crtf",
+  "phasecenter": "J2000 21h35m11.66 -01d02m52.46",
+  "cell": "0.05arcsec",
+  "imsize": [512, 512],
+  "output_prefix": "/path/to/work/eyelash",
+  "solint": "inf",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "weighting": "briggs",
+  "robust": 0.5,
+  "niter": 1000,
+  "threshold": "0.0Jy",
+  "calwt": false,
+  "overwrite": false
+}
