@@ -1,0 +1,19 @@
+.DS_Store
+*.log
+*.last
+__pycache__/
+*.py[cod]
+
+# CASA tables, measurement sets, images, and run products
+*.ms/
+*.cal/
+*.image/
+*.image.pbcor/
+*.mask/
+*.model/
+*.pb/
+*.psf/
+*.residual/
+*.sumwt/
+*_cy2_recommended_combined_spw/
+*_cy2_unsafe_independent_spw/

@@ -1,46 +1,86 @@
 # CH+ overlapping-SPW self-calibration
 
-This repository provides the CASA 6 self-calibration implementation used for
-the CH+(1-0) analysis described by Hayatsu (in preparation).  It is designed
-for spectral setups in which the astrophysical line occupies one or more
-partially overlapping spectral windows.
+This repository contains the CASA 6 self-calibration implementation used for
+the CH$^+$(1--0) analysis described by Hayatsu (in preparation).  The motivating
+Cycle 2 setup contains partially overlapping spectral windows (SPWs).  A real
+line changes the mean signal in the line-bearing window, so an independent
+amplitude solution for every SPW can absorb astrophysical SPW-to-SPW structure
+into the gains.
 
-The central methodological choice is to derive phase and amplitude solutions
-from explicitly selected line-free channels with `combine='scan,spw'`, and to
-map that common solution back to every science spectral window.  This preserves
-the relative spectral-window flux scale; solving independent amplitudes per
-window can instead absorb a real difference caused by line absorption.
+The recommended reduction therefore derives phase and amplitude solutions from
+explicitly selected line-free channels with `combine='scan,spw'` and maps the
+common solution back to every science SPW.  The repository also retains a
+clearly labelled independent-SPW failure-mode demonstration for controlled
+comparison; it is not a recommended science reduction.
 
-## Run
+## Turnkey Cycle 2 benchmark scripts
 
-Requires CASA 6 with `casatasks` and `casatools`.
+The [`cycle2/`](cycle2/README.md) directory contains one recommended script and
+one deliberately unsafe comparison script for each benchmark galaxy:
 
-1. Copy `chplus_selfcal.example.json` to a new configuration file.
-2. Replace every dataset-specific entry, especially `line_free_spw`,
-   `reference_antenna`, `solution_spw`, `mask`, `phasecenter`, and `solint`.
-3. Run:
+| Target | Recommended | Failure-mode demonstration |
+|---|---|---|
+| Cosmic Eyelash | `cycle2/eyelash_cy2_recommended.py` | `cycle2/eyelash_cy2_independent_spw.py` |
+| G09v1.40 | `cycle2/g09v140_cy2_recommended.py` | `cycle2/g09v140_cy2_independent_spw.py` |
+| G09v1.124 | `cycle2/g09v1124_cy2_recommended.py` | `cycle2/g09v1124_cy2_independent_spw.py` |
+
+Each file is standalone: it embeds the target-specific field, line-free
+frequency ranges, reference antenna, phase centre, expected SPW count, and line
+imaging reference frequency.  Put the corresponding pipeline-calibrated Cycle
+2 measurement set in a fresh working directory as `calibrated.ms`, then run one
+script, for example:
+
+```bash
+casa --nogui --nologger --nologfile --agg \
+  -c /path/to/chplus-selfcal/cycle2/eyelash_cy2_recommended.py
+```
+
+The input measurement set is not modified.  The script writes its products to
+a new target- and mode-specific directory and stops rather than overwriting an
+existing directory.  It performs target splitting, continuum modelling, phase
+and amplitude gain calibration, continuum subtraction, and creation of a
+non-deconvolved line cube.  The exact run parameters and output paths are saved
+to `provenance.json`.
+
+The recommended and comparison scripts differ intentionally only in the
+amplitude solution and its application:
+
+- recommended: `combine='scan,spw'` and a common SPW map;
+- failure-mode demonstration: `combine='scan'` and an identity SPW map, which
+  permits independent amplitude gains in each SPW.
+
+## Configurable interface
+
+`chplus_selfcal.py` and `chplus_selfcal.example.json` provide a configurable
+interface for adapting the recommended combined-SPW workflow to another
+dataset.  Every dataset-specific value must be verified before use:
 
 ```bash
 casa --nogui --nologger --nologfile --agg \
   -c chplus_selfcal.py path/to/config.json
 ```
 
-The input measurement set is never modified.  The script creates a working
-copy, calibration tables, before/after continuum images, and a provenance JSON
-record.  Existing outputs are preserved unless `overwrite` is explicitly set
-to `true`.
+## CASA compatibility
 
-## Scope and limitations
+The six benchmark scripts load under CASA 6.7.5.  In CASA 6.7 and later they
+call the retained `uvcontsub_old` task because the replacement `uvcontsub` task
+does not support `combine='spw'`; earlier CASA 6 releases use their original
+`uvcontsub` task automatically.
 
-- The example configuration records the Cosmic Eyelash setup; it is not a
-  turnkey archive reduction.
-- Line-free channels and the reference antenna must be verified independently
-  for every target and execution block.
-- A successful CASA run establishes that the code path works, not that the
-  resulting calibration is scientifically valid.  Inspect solution S/N,
-  antenna coverage, flux conservation, residuals, and the line profile before
-  adopting a result.
-- This release contains no ALMA measurement sets or proprietary data.
+The embedded SPW counts, frequency coverage, and reference antennas were
+checked against the saved target-only Cycle 2 measurement sets.  This validates
+the recorded inputs and installed CASA task interfaces, but is not a substitute
+for rerunning and scientifically validating every final product.
 
-No software license has yet been assigned.  The files are publicly viewable,
-but reuse terms should be clarified before a formal archival release.
+## Validation required after a run
+
+- inspect phase and amplitude solution S/N and antenna coverage;
+- verify that the relative SPW flux scale and continuum level are preserved;
+- compare calibrated and pipeline spectra using the same aperture and channel
+  binning;
+- inspect flagged-data fractions, image residuals, and recovered integrated
+  flux before adopting the output.
+
+No ALMA measurement sets or proprietary data are included.  No software
+license has yet been assigned; reuse terms should be clarified before a formal
+archival release.
