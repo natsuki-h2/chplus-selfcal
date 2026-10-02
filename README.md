@@ -49,6 +49,16 @@ amplitude solution and its application:
 - failure-mode demonstration: `combine='scan'` and an identity SPW map, which
   permits independent amplitude gains in each SPW.
 
+Search each script for `ここ` to find the exact `gaincal` and `applycal`
+choices responsible for this difference.
+
+At the end of a successful run, each script also extracts the dirty-cube
+spectrum at the continuum-peak position and writes
+`<target>.diagnostic_spectrum.png` and `.pdf` in the same target/mode output
+directory as the CASA products.  This quick-look spectrum uses one image pixel
+and is labelled as diagnostic only; it is not the aperture-integrated science
+spectrum used for line measurements.
+
 ## Configurable interface
 
 `chplus_selfcal.py` and `chplus_selfcal.example.json` provide a configurable

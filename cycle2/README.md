@@ -41,6 +41,16 @@ The controlled difference is the amplitude solution:
   failure mode discussed in the paper.  It can absorb real SPW-to-SPW spectral
   structure into the gains and must not be adopted as the science reduction.
 
+The exact amplitude-solution and SPW-mapping lines are marked with
+`KEY CHOICE (ここ)` or `CONTROLLED FAILURE MODE (ここ)` comments in every
+script.
+
+Each run ends by plotting the dirty-cube spectrum at the continuum-peak
+position.  The PNG and PDF quick-look figures are saved alongside the other
+CASA products in the target/mode output directory.  They use a single pixel
+and are intended to make the effect of the calibration choice immediately
+visible, not to replace an aperture-integrated science spectrum.
+
 The frequency selections and antenna choices were transcribed from the saved
 Cycle 2 CASA task records used in the analysis.  The scripts assume that
 `calibrated.ms` is the corresponding calibrated archive product for the named
